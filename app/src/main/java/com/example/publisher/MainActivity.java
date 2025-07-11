@@ -70,6 +70,7 @@ public class MainActivity extends ComponentActivity {
         });
     }
 
+    // api 표준화 대상
     private void publishMessage(String topic, String message) {
         if (!mqttClient.getState().isConnected()) {
             logStatus("⚠️ MQTT 클라이언트가 아직 연결되지 않았습니다.");
