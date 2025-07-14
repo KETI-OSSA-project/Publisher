@@ -9,6 +9,9 @@ import androidx.activity.ComponentActivity;
 import com.hivemq.client.mqtt.MqttClient;
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
+import com.example.messagebroker.Message;
+import com.example.messagebroker.MessagingManager;
+// import com.example.messagebroker.MessagingServiceConnectionListener;
 
 public class MainActivity extends ComponentActivity {
 
@@ -71,21 +74,46 @@ public class MainActivity extends ComponentActivity {
     }
 
     // api 표준화 대상
+//    private void publishMessage(String topic, String message) {
+//        if (!mqttClient.getState().isConnected()) {
+//            logStatus("⚠️ MQTT 클라이언트가 아직 연결되지 않았습니다.");
+//            return;
+//        }
+//
+//        mqttClient.publishWith()
+//                .topic(topic)
+//                .payload(message.getBytes())
+//                .qos(MqttQos.AT_LEAST_ONCE)
+//                .send()
+//                .whenComplete((result, throwable) -> {
+//                    runOnUiThread(() -> {
+//                        if (throwable == null) {
+//                            logStatus("🚀 메시지 발행 [" + topic + "]: " + message);
+//                            inputMessage.getText().clear();
+//                        } else {
+//                            logStatus("❌ 메시지 발행 실패: " + throwable.getMessage());
+//                        }
+//                    });
+//                });
+//    }
+
     private void publishMessage(String topic, String message) {
         if (!mqttClient.getState().isConnected()) {
             logStatus("⚠️ MQTT 클라이언트가 아직 연결되지 않았습니다.");
             return;
         }
 
-        mqttClient.publishWith()
-                .topic(topic)
-                .payload(message.getBytes())
-                .qos(MqttQos.AT_LEAST_ONCE)
-                .send()
+        Message msg = new Message.Builder(topic)
+                // .setTopic(topic)
+                .setPayload(message.getBytes())
+                .build();
+
+        MessagingManager manager = new MessagingManager();
+        manager.publish(msg)
                 .whenComplete((result, throwable) -> {
                     runOnUiThread(() -> {
                         if (throwable == null) {
-                            logStatus("🚀 메시지 발행 [" + topic + "]: " + message);
+                            logStatus("🚀 메시지 발행 [" + msg.getTopic() + "]: " + new String(msg.getPayload()));
                             inputMessage.getText().clear();
                         } else {
                             logStatus("❌ 메시지 발행 실패: " + throwable.getMessage());
