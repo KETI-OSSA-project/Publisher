@@ -21,10 +21,11 @@ package com.example.messagebroker;
  */
 
 import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-// import static com.example.messagebroker.MqttTopicUtils.checkMessageTopicSyntax;
+import static com.example.messagebroker.MqttTopicUtils.checkMessageTopicSyntax;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -59,6 +60,7 @@ public class Message implements Parcelable {
         }
     };
 
+    // Unique identifier of the message.
     private final UUID messageId;
     private final byte[] payload;
     private final String responseTopic;
@@ -115,20 +117,20 @@ public class Message implements Parcelable {
      *                                  rules described in MQTT v.5.0 section 4.7.
      * @deprecated Use {@link Builder} instead
      */
-    @Deprecated
-    public Message(@NonNull String topic, @NonNull byte[] payload,
-                   @NonNull HashSet<String> destinationIds) {
-        this(topic, payload);
-        requireNonNull(destinationIds);
-        if (destinationIds.isEmpty()) {
-            throw new IllegalArgumentException("At-least one destination element expected in the " +
-                    "hash set");
-        }
-        bundle.putStringArrayList(
-                MessageHeaderKeyNames.DESTINATION_IDS,
-                new ArrayList<>(destinationIds)
-        );
-    }
+//    @Deprecated
+//    public Message(@NonNull String topic, @NonNull byte[] payload,
+//                   @NonNull HashSet<String> destinationIds) {
+//        this(topic, payload);
+//        requireNonNull(destinationIds);
+//        if (destinationIds.isEmpty()) {
+//            throw new IllegalArgumentException("At-least one destination element expected in the " +
+//                    "hash set");
+//        }
+//        bundle.putStringArrayList(
+//                MessageHeaderKeyNames.DESTINATION_IDS,
+//                new ArrayList<>(destinationIds)
+//        );
+//    }
 
     /**
      * Constructor.
@@ -154,19 +156,20 @@ public class Message implements Parcelable {
      * @deprecated Use {@link Builder} instead
      */
     @Deprecated
-    public Message(@NonNull String topic, @NonNull byte[] payload) {
-        this.messageId = UUID.randomUUID();
-        requireNonNull(topic);
-        checkMessageTopicSyntax(topic);
-        requireNonNull(payload);
-        this.payload = payload;
-        bundle = new Bundle();
-        bundle.putString(MessageHeaderKeyNames.TOPIC, topic);
-        responseTopic = null;
-        correlationData = null;
-        timeStamp = Instant.now();
-
-    }
+//    public Message(@NonNull String topic, @NonNull byte[] payload) {
+//        this.messageId = UUID.randomUUID();
+//        requireNonNull(topic);
+//        checkMessageTopicSyntax(topic);
+//        requireNonNull(payload);
+//        this.payload = payload;
+//        bundle = new Bundle();
+//        bundle.putString(MessageHeaderKeyNames.TOPIC, topic);
+//        responseTopic = null;
+//        correlationData = null;
+//        timeStamp = null;
+//        // timeStamp = Instant.now();
+//
+//    }
 
     private Message(Parcel in) {
         messageId = (UUID) in.readSerializable();
@@ -174,17 +177,19 @@ public class Message implements Parcelable {
         payload = in.createByteArray();
         responseTopic = in.readString();
         correlationData = in.createByteArray();
-        timeStamp = Instant.ofEpochMilli(in.readLong());
+        // timeStamp = Instant.ofEpochMilli(in.readLong());
+        timeStamp = null;
     }
 
-    @Override
+   @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeSerializable(messageId);
         dest.writeBundle(bundle);
         dest.writeByteArray(payload);
         dest.writeString(responseTopic);
         dest.writeByteArray(correlationData);
-        dest.writeLong(timeStamp.toEpochMilli());
+        // dest.writeLong(timeStamp.toEpochMilli());
+        // dest.writeLong(timeStamp != null ? timeStamp.toEpochMilli() : 0L);
     }
 
     @Override
@@ -197,9 +202,9 @@ public class Message implements Parcelable {
      *
      * @return unique identifier of the message
      */
-    public UUID getMessageId() {
-        return messageId;
-    }
+//    public UUID getMessageId() {
+//        return messageId;
+//    }
 
     /**
      * Get the topic the message belongs to.
@@ -216,9 +221,9 @@ public class Message implements Parcelable {
      * @return The response topic that represents the topic on which the responses from the
      * receivers of the message are expected.
      */
-    public String getResponseTopic() {
-        return responseTopic;
-    }
+//    public String getResponseTopic() {
+//        return responseTopic;
+//    }
 
     /**
      * Get the correlation data encapsulated in the message.
@@ -228,9 +233,9 @@ public class Message implements Parcelable {
      * @return The correlation data that can be used for identifying to which specific message a
      * response that is received later relates.
      */
-    public byte[] getCorrelationData() {
-        return correlationData;
-    }
+//    public byte[] getCorrelationData() {
+//        return correlationData;
+//    }
 
     /**
      * Get the publisher id of the message. The publisherId is the package name of the sender
@@ -242,9 +247,9 @@ public class Message implements Parcelable {
      *
      * @return publisher id of the message
      */
-    public String getPublisherId() {
-        return bundle.getString(MessageHeaderKeyNames.PUBLISHER_ID);
-    }
+//    public String getPublisherId() {
+//        return bundle.getString(MessageHeaderKeyNames.PUBLISHER_ID);
+//    }
 
     /**
      * Sets the publisherId of the message. Used only internally in the
@@ -255,9 +260,9 @@ public class Message implements Parcelable {
      *                    initialization of the {@link MessagingManager}.
      * @hide
      */
-    void setPublisherId(String publisherId) {
-        bundle.putString(MessageHeaderKeyNames.PUBLISHER_ID, publisherId);
-    }
+//    void setPublisherId(String publisherId) {
+//        bundle.putString(MessageHeaderKeyNames.PUBLISHER_ID, publisherId);
+//    }
 
     /**
      * Get the set of destination identifiers the message is directed to.
@@ -265,14 +270,14 @@ public class Message implements Parcelable {
      * @return destination identifiers of the message, or empty set if there are no
      * identifiers
      */
-    public Set<String> getDestinationIds() {
-        ArrayList<String> destinationIds =
-                bundle.getStringArrayList(MessageHeaderKeyNames.DESTINATION_IDS);
-        if (destinationIds == null) {
-            return Collections.emptySet();
-        }
-        return new HashSet<>(destinationIds);
-    }
+//    public Set<String> getDestinationIds() {
+//        ArrayList<String> destinationIds =
+//                bundle.getStringArrayList(MessageHeaderKeyNames.DESTINATION_IDS);
+//        if (destinationIds == null) {
+//            return Collections.emptySet();
+//        }
+//        return new HashSet<>(destinationIds);
+//    }
 
     /**
      * Get the payload encapsulated in the message.
@@ -282,20 +287,18 @@ public class Message implements Parcelable {
     public byte[] getPayload() {
         return payload;
     }
-
     /**
-     * Get the timeStamp of the message. Note, the timeStamp contains the time when the message is
-     * generated. However, the application sending the message can also override the message
-     * using the method
-     * {@link com.securityandsafetythings.messagebroker.Message.Builder#setTimeStamp(Instant)}
-     * during its creation. This is usually
-     * done to capture the time of a certain event to which the metadata of the message belongs.
+     * Get the time stamp of the message.
      *
-     * @return timeStamp of the message.
+     * <p>Time stamp is useful for capturing the time of a certain event to which the metadata of
+     * the message belongs to. Populated with the time when the message object is built
+     * ({@link Builder#build()}).
+     *
+     * @return Instant representing the time stamp of the message
      */
-    public Instant getTimeStamp() {
-        return timeStamp;
-    }
+//    public Instant getTimeStamp() {
+//        return timeStamp;
+//    }
 
     /**
      * Get the bundle containing the header content of the message.
@@ -303,9 +306,9 @@ public class Message implements Parcelable {
      * @return bundle containing the header content of the message
      * @hide
      */
-    public Bundle getBundle() {
-        return bundle;
-    }
+//    public Bundle getBundle() {
+//        return bundle;
+//    }
 
     public static class Builder {
         private final String topic;
@@ -348,12 +351,12 @@ public class Message implements Parcelable {
          *                      responses from the receivers of the message are expected.
          * @return Builder object encapsulating the response topic of the message
          */
-        public Builder setResponseTopic(@NonNull String responseTopic) {
-            requireNonNull(responseTopic);
-            checkMessageTopicSyntax(responseTopic);
-            this.responseTopic = responseTopic;
-            return this;
-        }
+//        public Builder setResponseTopic(@NonNull String responseTopic) {
+//            requireNonNull(responseTopic);
+//            checkMessageTopicSyntax(responseTopic);
+//            this.responseTopic = responseTopic;
+//            return this;
+//        }
 
         /**
          * Optional method for setting the correlation data of the message.
@@ -364,11 +367,11 @@ public class Message implements Parcelable {
          *                        which specific message a response that is received later relates.
          * @return Builder object encapsulating the correlationData of the message
          */
-        public Builder setCorrelationData(@NonNull byte[] correlationData) {
-            requireNonNull(correlationData);
-            this.correlationData = correlationData;
-            return this;
-        }
+//        public Builder setCorrelationData(@NonNull byte[] correlationData) {
+//            requireNonNull(correlationData);
+//            this.correlationData = correlationData;
+//            return this;
+//        }
 
         /**
          * Optional method for setting the payload of the message.
@@ -407,9 +410,9 @@ public class Message implements Parcelable {
          * @deprecated Use {@link Builder#setDestinationIds(HashSet)} instead
          */
         @Deprecated
-        public Builder setDestionationIds(@NonNull HashSet<String> destinationIds) {
-            return setDestinationIds(destinationIds);
-        }
+//        public Builder setDestionationIds(@NonNull HashSet<String> destinationIds) {
+//            return setDestinationIds(destinationIds);
+//        }
 
         /**
          * Optional method to set the destinations of the message. In other words, the
@@ -430,15 +433,15 @@ public class Message implements Parcelable {
          *                                  only receive the messages, if they have subscribed
          *                                  with a matching filter for this message.
          */
-        public Builder setDestinationIds(@NonNull HashSet<String> destinationIds) {
-            requireNonNull(destinationIds);
-            if (destinationIds.isEmpty()) {
-                throw new IllegalArgumentException("At-least one destination element expected in " +
-                        "the hash set");
-            }
-            this.destinationIds = destinationIds;
-            return this;
-        }
+//        public Builder setDestinationIds(@NonNull HashSet<String> destinationIds) {
+//            requireNonNull(destinationIds);
+//            if (destinationIds.isEmpty()) {
+//                throw new IllegalArgumentException("At-least one destination element expected in " +
+//                        "the hash set");
+//            }
+//            this.destinationIds = destinationIds;
+//            return this;
+//        }
 
         /**
          * Optional method to set time stamp of the message. Useful for capturing the time of a
@@ -470,11 +473,11 @@ public class Message implements Parcelable {
          * @param timeStamp Instant representing the timeStamp of the message.
          * @return Builder object encapsulating the payload of the message
          */
-        public Builder setTimeStamp(final @NonNull Instant timeStamp) {
-            requireNonNull(timeStamp);
-            this.timeStamp = timeStamp;
-            return this;
-        }
+//        public Builder setTimeStamp(final @NonNull Instant timeStamp) {
+//            requireNonNull(timeStamp);
+//            this.timeStamp = timeStamp;
+//            return this;
+//        }
 
         /**
          * Build {@link Message} object from the builder object.
@@ -483,7 +486,7 @@ public class Message implements Parcelable {
          */
         public Message build() {
             if (timeStamp == null) {
-                timeStamp = Instant.now();
+                // timeStamp = Instant.now();
             }
             return new Message(this);
         }
