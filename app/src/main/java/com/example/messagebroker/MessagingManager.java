@@ -813,15 +813,15 @@ public class MessagingManager implements AutoCloseable {
      * filter rules set by the client. A sample code for subscribing a client with
      * the message broker service can be found in the documentation of {@link MessagingManager}
      */
-    public interface MessageListener {
-        /**
-         * Called when a {@link Message} received by the message broker service satisfies
-         * one or more {@link Filter} rules the client subscribed for.
-         *
-         * @param message contains the new {@link Message}
-         */
-        void onMessage(Message message);
-    }
+//    public interface MessageListener {
+//        /**
+//         * Called when a {@link Message} received by the message broker service satisfies
+//         * one or more {@link Filter} rules the client subscribed for.
+//         *
+//         * @param message contains the new {@link Message}
+//         */
+//        void onMessage(Message message);
+//    }
 
 //    private static void handlePortResult(MessageBrokerResult result)
 //            throws MessageBrokerConnectionException {
