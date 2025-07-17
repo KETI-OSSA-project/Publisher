@@ -84,93 +84,6 @@ public class Message implements Parcelable {
         }
     }
 
-    /**
-     * Constructor.
-     *
-     * <p>Constructor for creating a directed message. In other words, the
-     * {@link Message} object created can only be received by a specified set of subscribers.
-     * Useful for restricting the access to the {@link Message} from the publisher side.
-     *
-     * @param topic          The topic is used to identify the content of the message.
-     *                       It is not interpreted by the message broker service.
-     *                       It is only used for filtering purposes for subscribers.
-     *                       Subscribers need to use this field to recognize the message being
-     *                       received. The topic name should follow the topic name syntax rules
-     *                       described in MQTT v.5.0 section 4.7. Failure of this would result in
-     *                       an {@link IllegalArgumentException}.
-     * @param payload        Byte-array containing the payload of the message. It is passed
-     *                       through unmodified and not interpreted by the message broker
-     *                       service, except if it is a message targeted to the service itself.
-     *                       Visit {@link android.os.TransactionTooLargeException} documentation
-     *                       for the supported maximum payload size.
-     * @param destinationIds The set of subscribers to whom the message should be directed to.
-     *                       Useful for restricting the access of the {@link Message} to only a
-     *                       specified set of subscribers. A subscriber is identified by the package
-     *                       name of the application it is part of. At least one subscriber
-     *                       should be specified when using this constructor, otherwise an
-     *                       {@link IllegalArgumentException} is thrown. Note, while specifying a
-     *                       destinationId, the '.' characters of the package name should be
-     *                       replaced by the '/'character. Also note, the subscribers can only
-     *                       receive the messages, if they have subscribed with a matching
-     *                       filter for this message.
-     * @throws IllegalArgumentException if the topic name does not follow the topic name syntax
-     *                                  rules described in MQTT v.5.0 section 4.7.
-     * @deprecated Use {@link Builder} instead
-     */
-//    @Deprecated
-//    public Message(@NonNull String topic, @NonNull byte[] payload,
-//                   @NonNull HashSet<String> destinationIds) {
-//        this(topic, payload);
-//        requireNonNull(destinationIds);
-//        if (destinationIds.isEmpty()) {
-//            throw new IllegalArgumentException("At-least one destination element expected in the " +
-//                    "hash set");
-//        }
-//        bundle.putStringArrayList(
-//                MessageHeaderKeyNames.DESTINATION_IDS,
-//                new ArrayList<>(destinationIds)
-//        );
-//    }
-
-    /**
-     * Constructor.
-     *
-     * <p>Constructor for creating a broadcast message. Any subscriber will be able to receive the
-     * {@link Message} object created, provided they subscribed with a {@link Filter} that matches
-     * this message.
-     *
-     * @param topic   The topic is used to identify the content of the message.
-     *                It is not interpreted by the message broker service.
-     *                It is only used for filtering  purposes for subscribers.
-     *                Subscribers need to use this field to recognize the message being
-     *                received. The topic name should follow the topic name syntax rules described
-     *                in MQTT v.5.0 section 4.7. Failure of this would result in
-     *                an {@link IllegalArgumentException}.
-     * @param payload Byte-array containing the payload of the message. It is passed
-     *                through unmodified and not interpreted by the message broker service, except
-     *                if it is a message targeted to the service itself.
-     *                Visit {@link android.os.TransactionTooLargeException} documentation for the
-     *                supported maximum payload size.
-     * @throws IllegalArgumentException if the topic name does not follow the topic name syntax
-     *                                  rules described in MQTT v.5.0 section 4.7.
-     * @deprecated Use {@link Builder} instead
-     */
-    @Deprecated
-//    public Message(@NonNull String topic, @NonNull byte[] payload) {
-//        this.messageId = UUID.randomUUID();
-//        requireNonNull(topic);
-//        checkMessageTopicSyntax(topic);
-//        requireNonNull(payload);
-//        this.payload = payload;
-//        bundle = new Bundle();
-//        bundle.putString(MessageHeaderKeyNames.TOPIC, topic);
-//        responseTopic = null;
-//        correlationData = null;
-//        timeStamp = null;
-//        // timeStamp = Instant.now();
-//
-//    }
-
     private Message(Parcel in) {
         messageId = (UUID) in.readSerializable();
         bundle = in.readBundle(getClass().getClassLoader());
@@ -211,6 +124,8 @@ public class Message implements Parcelable {
      *
      * @return topic of the message
      */
+
+    // getTopic: 읽기 역할
     public String getTopic() {
         return bundle.getString(MessageHeaderKeyNames.TOPIC);
     }
@@ -282,7 +197,7 @@ public class Message implements Parcelable {
     /**
      * Get the payload encapsulated in the message.
      *
-     * @return payload of the message
+     * @return payload of the message -> 읽기 역할
      */
     public byte[] getPayload() {
         return payload;
@@ -383,65 +298,12 @@ public class Message implements Parcelable {
          *                the supported maximum payload size.
          * @return Builder object encapsulating the payload of the message
          */
+        // 쓰기 전용
         public Builder setPayload(@NonNull byte[] payload) {
             requireNonNull(payload);
             this.payload = payload;
             return this;
         }
-
-        /**
-         * Optional method to set the destinations of the message. In other words, the
-         * {@link Message} object created can only be received by a specified set of
-         * subscribers. Useful for restricting the access to the {@link Message} from the publisher
-         * side.
-         *
-         * @param destinationIds The set of subscribers to whom the message should be
-         *                       directed to. Useful for restricting the access of the
-         *                       {@link Message} to only a specified set of subscribers. A
-         *                       subscriber is identified by the package name of the application it
-         *                       is part of. Note, while specifying a destinationId, the '.'
-         *                       characters of the package name should be replaced by the '/'
-         *                       character.
-         * @return Builder object encapsulating the payload of the message
-         * @throws IllegalArgumentException is thrown if the provided hash set does not contain at
-         *                                  least one subscriber. Also note, the subscribers can
-         *                                  only receive the messages, if they have subscribed
-         *                                  with a matching filter for this message.
-         * @deprecated Use {@link Builder#setDestinationIds(HashSet)} instead
-         */
-        @Deprecated
-//        public Builder setDestionationIds(@NonNull HashSet<String> destinationIds) {
-//            return setDestinationIds(destinationIds);
-//        }
-
-        /**
-         * Optional method to set the destinations of the message. In other words, the
-         * {@link Message} object created can only be received by a specified set of
-         * subscribers. Useful for restricting the access to the {@link Message} from the publisher
-         * side.
-         *
-         * @param destinationIds The set of subscribers to whom the message should be
-         *                       directed to. Useful for restricting the access of the
-         *                       {@link Message} to only a specified set of subscribers. A
-         *                       subscriber is identified by the package name of the application it
-         *                       is part of. Note, while specifying a destinationId, the '.'
-         *                       characters of the package name should be replaced by the '/'
-         *                       character.
-         * @return Builder object encapsulating the payload of the message
-         * @throws IllegalArgumentException is thrown if the provided hash set does not contain at
-         *                                  least one subscriber. Also note, the subscribers can
-         *                                  only receive the messages, if they have subscribed
-         *                                  with a matching filter for this message.
-         */
-//        public Builder setDestinationIds(@NonNull HashSet<String> destinationIds) {
-//            requireNonNull(destinationIds);
-//            if (destinationIds.isEmpty()) {
-//                throw new IllegalArgumentException("At-least one destination element expected in " +
-//                        "the hash set");
-//            }
-//            this.destinationIds = destinationIds;
-//            return this;
-//        }
 
         /**
          * Optional method to set time stamp of the message. Useful for capturing the time of a

@@ -32,12 +32,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import android.util.Log;
 
-//import com.securityandsafetythings.BoundServiceHelper;
-//import com.securityandsafetythings.messagebroker.ports.InPort;
-//import com.securityandsafetythings.messagebroker.ports.OutPort;
-//import com.securityandsafetythings.messagebroker.ports.PortConfiguration;
-//import com.securityandsafetythings.messagebroker.ports.PortGroup;
-
 import java.util.Objects;
 import java.util.UUID;
 
@@ -496,7 +490,7 @@ public class MessagingManager implements AutoCloseable {
      *                           .MESSAGE_PUBLISH</code>.
      */
     @RequiresPermission(Constants.MESSAGE_PUBLISH_PERMISSION)
-    public void publish(@NonNull Message message) {
+    public void publish(@NonNull Message message) { // 동기
         Objects.requireNonNull(message);
         // message.setPublisherId(applicationPackageName);
         try {
@@ -843,4 +837,5 @@ public class MessagingManager implements AutoCloseable {
 //                        MessageBrokerConnectionException.Type.UNKNOWN_ERROR);
 //        }
 //    }
+//
 }
