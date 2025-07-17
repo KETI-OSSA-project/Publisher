@@ -111,7 +111,7 @@ public class MainActivity extends ComponentActivity {
         // 선언 방식 확인
         MessagingManager messagingManager = MessagingManager.getMessagingManager(this);
         try {
-            messagingManager.publish(msg);
+            messagingManager.publish(msg);  // QoS는 기본값 AT_LEAST_ONCE로 설정됨
             runOnUiThread(() -> {
                 logStatus("🚀 메시지 발행 [" + msg.getTopic() + "]: " + new String(msg.getPayload()));
                 inputMessage.getText().clear();
