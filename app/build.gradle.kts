@@ -6,6 +6,13 @@ android {
     namespace = "com.example.publisher"
     compileSdk = 35
 
+    sourceSets["main"].java.setSrcDirs(listOf("src/main/java", "build/generated/aidl_source_output_dir/debug"))
+
+    buildFeatures {
+        aidl = true
+        viewBinding = true
+    }
+
     defaultConfig {
         applicationId = "com.example.publisher"
         minSdk = 24

@@ -11,7 +11,7 @@ import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
 import com.example.messagebroker.Message;
 import com.example.messagebroker.MessagingManager;
-// import com.example.messagebroker.MessagingServiceConnectionListener;
+// import com.example.messagebroker.MessagingManager.MessagingServiceConnectionListener;
 
 public class MainActivity extends ComponentActivity {
 
@@ -108,18 +108,19 @@ public class MainActivity extends ComponentActivity {
                 .setPayload(message.getBytes())
                 .build();
 
-        MessagingManager manager = new MessagingManager();
-        manager.publish(msg)
-                .whenComplete((result, throwable) -> {
-                    runOnUiThread(() -> {
-                        if (throwable == null) {
-                            logStatus("🚀 메시지 발행 [" + msg.getTopic() + "]: " + new String(msg.getPayload()));
-                            inputMessage.getText().clear();
-                        } else {
-                            logStatus("❌ 메시지 발행 실패: " + throwable.getMessage());
-                        }
-                    });
-                });
+        // 선언 방식 확인
+        MessagingManager messagingManager = MessagingManager.getMessagingManager(this);
+        try {
+            messagingManager.publish(msg);
+            runOnUiThread(() -> {
+                logStatus("🚀 메시지 발행 [" + msg.getTopic() + "]: " + new String(msg.getPayload()));
+                inputMessage.getText().clear();
+            });
+        } catch (Exception e) {
+            runOnUiThread(() -> {
+                logStatus("❌ 메시지 발행 실패: " + e.getMessage());
+            });
+        }
     }
 
     private void logStatus(String msg) {
