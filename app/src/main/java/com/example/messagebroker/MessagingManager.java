@@ -378,7 +378,7 @@ public class MessagingManager implements AutoCloseable {
                 SERVICE,
                 IMessagingService.Stub::asInterface);
 
-        // Bind to the service.
+        // Bind to the service. -> onServiceConnected()가 호출되기 전까지 Proxy == null (비동기)
         serviceHelper.bindService();
 
         // Replace the '.' characters of the package name with the '/' characters. This is to
@@ -466,6 +466,44 @@ public class MessagingManager implements AutoCloseable {
                 listener.onDisconnected();
             }
         };
+    }
+
+    /**
+     * Register a callback for service availability state changes using AIDL interface.
+     *
+     * @param listener AIDL callback interface for connection state changes
+     */
+    public void setMessagingServiceConnectionListener(
+            @Nullable IMessagingServiceConnectionListener listener) {
+        if (listener == null) {
+            // 기존 연결 리스너 제거
+            serviceHelper.setExternalConnectionListener(null, null);
+            return;
+        }
+
+        // AIDL 콜백을 BoundServiceHelper의 ConnectionListener로 변환
+        BoundServiceHelper.ConnectionListener connectionListener =
+            new BoundServiceHelper.ConnectionListener() {
+                @Override
+                public void onConnected() {
+                    try {
+                        listener.onConnected();
+                    } catch (android.os.RemoteException e) {
+                        Log.e(TAG, "Error calling onConnected callback", e);
+                    }
+                }
+
+                @Override
+                public void onDisconnected() {
+                    try {
+                        listener.onDisconnected();
+                    } catch (android.os.RemoteException e) {
+                        Log.e(TAG, "Error calling onDisconnected callback", e);
+                    }
+                }
+            };
+
+        serviceHelper.setExternalConnectionListener(connectionListener, null);
     }
 
     /**
