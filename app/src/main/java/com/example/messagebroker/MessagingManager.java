@@ -378,6 +378,9 @@ public class MessagingManager implements AutoCloseable {
                 SERVICE,
                 IMessagingService.Stub::asInterface);
 
+        // Bind to the service.
+        serviceHelper.bindService();
+
         // Replace the '.' characters of the package name with the '/' characters. This is to
         // facilitate hierarchical filtering (specifically following specification described
         // in MQTT v.5.0 Sec 4.7) on the publisherId attribute of a Message Object.
@@ -490,13 +493,29 @@ public class MessagingManager implements AutoCloseable {
      *                           .MESSAGE_PUBLISH</code>.
      */
     @RequiresPermission(Constants.MESSAGE_PUBLISH_PERMISSION)
-    public void publish(@NonNull Message message) { // 동기
+    // 동기 메서드이자 Wrapper 메서드
+    public void publish(@NonNull Message message) {
         Objects.requireNonNull(message);
         // message.setPublisherId(applicationPackageName);
+
+        // 바인딩이 안된 경우 (publish가 호출되기 전에 연결이 끊어진 경우)
+        if (serviceHelper == null) {
+            Log.w(TAG, "MessagingService가 아직 연결되지 않았습니다.");
+            return;
+        }
+
+        IMessagingService service = serviceHelper.get();
+        if (service == null) {
+            Log.w(TAG, "MessagingService가 아직 바인딩되지 않았습니다. 연결을 기다려주세요.");
+            return;
+        }
+
         try {
-            serviceHelper.get().publish(message);
+            service.publish(message);
+            Log.d(TAG, "메시지 발행 성공: " + message.getTopic());
         } catch (RemoteException e) {
-            throw new RuntimeException(e);
+            Log.e(TAG, "메시지 발행 중 RemoteException 발생", e);
+            throw new RuntimeException("메시지 발행 실패", e);
         }
     }
 

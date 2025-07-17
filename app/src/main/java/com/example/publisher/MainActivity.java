@@ -25,6 +25,7 @@ public class MainActivity extends ComponentActivity {
     private TextView statusView;
 
     private Mqtt3AsyncClient mqttClient;
+    private boolean isServiceConnection = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

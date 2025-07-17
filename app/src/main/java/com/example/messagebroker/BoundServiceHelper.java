@@ -62,7 +62,7 @@ public class BoundServiceHelper<T> {
         return new BoundServiceHelper<>(context, serviceComponent, binderConverter);
     }
 
-    private void bindService() {
+    public void bindService() {
         Intent intent = new Intent();
         intent.setComponent(serviceComponent);
         context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
@@ -77,6 +77,7 @@ public class BoundServiceHelper<T> {
     }
 
     @Nullable
+    // PROXY: This method returns the service instance if bound, or null if not bound.
     public T get() {
         return serviceRef.get();
     }
