@@ -218,14 +218,14 @@ public class MessagingService extends Service {
     /**
      * 현재 구독자 수 반환 (디버깅용)
      */
-    public int getSubscriberCount() {
-        return subscribedClients.size();
-    }
+//    public int getSubscriberCount() {
+//        return subscribedClients.size();
+//    }
 
     /**
      * 메시지 히스토리 크기 반환 (디버깅용)
      */
-    public int getMessageHistorySize() {
-        return messageHistory.size();
-    }
+//    public int getMessageHistorySize() {
+//        return messageHistory.size();
+//    }
 }

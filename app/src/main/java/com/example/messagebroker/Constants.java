@@ -22,7 +22,7 @@ package com.example.messagebroker;
 
 /**
  * Constants for Message Broker and Messaging Access Control.
- *  메시지 브로커 및 메시징 접근 제어에 사용되는 상수들을 정의한 자바 클래스
+ * 메시지 브로커 및 메시징 접근 제어에 사용되는 상수들을 정의한 자바 클래스
  * @hide
  */
 public class Constants {

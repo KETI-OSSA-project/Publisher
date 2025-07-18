@@ -75,29 +75,6 @@ public class MainActivity extends ComponentActivity {
     }
 
     // api 표준화 대상
-//    private void publishMessage(String topic, String message) {
-//        if (!mqttClient.getState().isConnected()) {
-//            logStatus("⚠️ MQTT 클라이언트가 아직 연결되지 않았습니다.");
-//            return;
-//        }
-//
-//        mqttClient.publishWith()
-//                .topic(topic)
-//                .payload(message.getBytes())
-//                .qos(MqttQos.AT_LEAST_ONCE)
-//                .send()
-//                .whenComplete((result, throwable) -> {
-//                    runOnUiThread(() -> {
-//                        if (throwable == null) {
-//                            logStatus("🚀 메시지 발행 [" + topic + "]: " + message);
-//                            inputMessage.getText().clear();
-//                        } else {
-//                            logStatus("❌ 메시지 발행 실패: " + throwable.getMessage());
-//                        }
-//                    });
-//                });
-//    }
-
     private void publishMessage(String topic, String message) {
         if (!mqttClient.getState().isConnected()) {
             logStatus("⚠️ MQTT 클라이언트가 아직 연결되지 않았습니다.");
