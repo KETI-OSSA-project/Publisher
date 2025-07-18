@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BoundServiceHelper<T> {
+    // 앱 내부에서 서비스 연결 상태를 관리하기 위한 리스너입니다. (IMessagingServiceConnectionListener 와 착각하면 안됌)
     public interface ConnectionListener {
         void onConnected();
         void onDisconnected();
@@ -47,6 +48,7 @@ public class BoundServiceHelper<T> {
         }
     };
 
+    // 생성자
     private BoundServiceHelper(@NonNull Context context,
                               @NonNull ComponentName serviceComponent,
                               @NonNull BinderConverter<T> binderConverter) {
@@ -56,6 +58,7 @@ public class BoundServiceHelper<T> {
         bindService();
     }
 
+    // 팩토리 메서드: BoundServiceHelper 인스턴스를 생성합니다.
     public static <T> BoundServiceHelper<T> newInstance(@NonNull Context context,
                                                         @NonNull ComponentName serviceComponent,
                                                         @NonNull BinderConverter<T> binderConverter) {

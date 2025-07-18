@@ -302,7 +302,7 @@ public class Message implements Parcelable {
         public Builder setPayload(@NonNull byte[] payload) {
             requireNonNull(payload);
             this.payload = payload;
-            return this;
+            return this;    // 자기 자신을 반환 -> 메서드 체이닝
         }
 
         /**
