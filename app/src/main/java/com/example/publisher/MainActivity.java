@@ -55,6 +55,7 @@ public class MainActivity extends ComponentActivity {
         });
     }
 
+    // HiveMQ MQTT 클라이언트를 초기화하고 브로커에 연결하는 함수
     private void setupMqttClient() {
         mqttClient = MqttClient.builder()
                 .useMqttVersion3()
