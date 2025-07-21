@@ -170,7 +170,7 @@ public class MessagingService extends Service {
     }
 
     /**
-     * 구독된 모든 클라이언트에게 메시지 전달
+     * 구독된 모든 클라이언트에게 메시지 전달 -> 현재는 아직 구현은 안되어있음
      */
     private void deliverMessageToSubscribers(Message message) {
         if (subscribedClients.isEmpty()) {
@@ -196,7 +196,7 @@ public class MessagingService extends Service {
     }
 
     /**
-     * 새 구독자에게 메시지 히스토리 전달 (선택적 기능)
+     * 새 구독자에게 메시지 히스토리 전달 (선택적 기능) -> 아직 구현은 안되어있음
      */
     private void deliverHistoryToNewSubscriber(int clientHash) {
         if (messageHistory.isEmpty()) {

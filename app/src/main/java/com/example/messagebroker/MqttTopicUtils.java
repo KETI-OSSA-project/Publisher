@@ -172,13 +172,13 @@ public class MqttTopicUtils {
      * @return Returns {@code true} if filter {@code thisFilter} is a super set of
      * {@code otherFilter}, ({@code false}) otherwise.
      */
-    public static boolean isSuperset(@NonNull String thisFilter, @NonNull String otherFilter) {
-        Objects.requireNonNull(otherFilter);
-
-        //Maths: set A is a Superset of set B, if intersection(A,B) equals B.
-        return otherFilter.equals(
-                intersection(thisFilter, otherFilter));
-    }
+//    public static boolean isSuperset(@NonNull String thisFilter, @NonNull String otherFilter) {
+//        Objects.requireNonNull(otherFilter);
+//
+//        //Maths: set A is a Superset of set B, if intersection(A,B) equals B.
+//        return otherFilter.equals(
+//                intersection(thisFilter, otherFilter));
+//    }
 
     /**
      * Check whether a filter expression has intersection with other filter expression.
@@ -188,9 +188,9 @@ public class MqttTopicUtils {
      * @return Returns {@code true} if {@code thisFilter} has intersection with
      * {@code otherFilter}, ({@code false}) otherwise.
      */
-    public static boolean hasIntersection(@NonNull String thisFilter, @NonNull String otherFilter) {
-        return !(intersection(thisFilter, otherFilter) == null);
-    }
+//    public static boolean hasIntersection(@NonNull String thisFilter, @NonNull String otherFilter) {
+//        return !(intersection(thisFilter, otherFilter) == null);
+//    }
 
     /**
      * Method to find a filter expression which is the intersection of two MQTT topic expressions.
@@ -200,197 +200,197 @@ public class MqttTopicUtils {
      * @return Returns an intersected expression if there is an intersection,
      * ({@code null}) otherwise.
      */
-    public static String intersection(String thisFilter, String otherFilter) {
-        checkFilterTopicSyntax(thisFilter);
-        checkFilterTopicSyntax(otherFilter);
+//    public static String intersection(String thisFilter, String otherFilter) {
+//        checkFilterTopicSyntax(thisFilter);
+//        checkFilterTopicSyntax(otherFilter);
+//
+//        if (thisFilter.equals(otherFilter)) {
+//            return thisFilter;
+//        }
+//
+//        //TODO(tha1ein): consider deviation from MQTT Specification [SODP-322].
+//        //Filter starting with dollar are not a subset of other filters starting with wildcards.
+//        if ((thisFilter.charAt(0) == '$' && otherFilter.charAt(0) != '$')
+//                || (thisFilter.charAt(0) != '$' && otherFilter.charAt(0) == '$')) {
+//            return null;
+//        }
+//
+//        //if multi level wildcard in one filter is at index zero, the second
+//        // filter is always the subset.
+//        if (thisFilter.charAt(0) == MULTI_LEVEL_WILD_CARD) {
+//            return otherFilter;
+//        }
+//        if (otherFilter.charAt(0) == MULTI_LEVEL_WILD_CARD) {
+//            return thisFilter;
+//        }
+//
+//        //find index of multi level wild card in each expression
+//        int multiLevelWildCardIndexInThis = thisFilter.indexOf(MULTI_LEVEL_WILD_CARD);
+//        int multiLevelWildCardIndexInOther = otherFilter.indexOf(MULTI_LEVEL_WILD_CARD);
+//
+//        //if there are no multi level wild cards, skip to single level wild card intersection.
+//        if (multiLevelWildCardIndexInThis != -1 || multiLevelWildCardIndexInOther != -1) {
+//
+//            // Count number of levels in each filter
+//            int numberOfLevelsInThisFilter = countLevels(thisFilter);
+//            int numberOfLevelsInOtherFilter = countLevels(otherFilter);
+//
+//            /* Among the two, find the expression which has multi level wild card earlier
+//            in order of appearance*/
+//            //Assuming thisFilter has wildcard earlier, mark and proceed.
+//            // If otherFilter is earlier, correctly assign later.
+//            String firstFilter = thisFilter;
+//            String secondFilter = otherFilter;
+//            int wildCardIndexInFirstFilter = multiLevelWildCardIndexInThis;
+//            int numberOfLevelsInFirstFilter = numberOfLevelsInThisFilter;
+//            int numberOfLevelsInSecondFilter = numberOfLevelsInOtherFilter;
+//
+//            //true if otherFilter has a multi level wild card and thisFilter doesn't have one
+//            //or true if both filters have multi level wild card, and appears earlier in
+//            //otherFilter.
+//            boolean isOtherFilterEarlier = (multiLevelWildCardIndexInOther > -1)
+//                    && ((multiLevelWildCardIndexInThis == -1)
+//                    || (numberOfLevelsInOtherFilter < numberOfLevelsInThisFilter));
+//            //if otherFilter is earlier, correctly assign it here.
+//            if (isOtherFilterEarlier) {
+//                firstFilter = otherFilter;
+//                secondFilter = thisFilter;
+//                wildCardIndexInFirstFilter = multiLevelWildCardIndexInOther;
+//                numberOfLevelsInFirstFilter = numberOfLevelsInOtherFilter;
+//                numberOfLevelsInSecondFilter = numberOfLevelsInThisFilter;
+//            }
+//
+//            // Return null if the number of levels in the second filter is less than the
+//            // number of levels in the first filter.
+//            // example case: a/b/c/# and a/b/
+//            if (numberOfLevelsInSecondFilter < numberOfLevelsInFirstFilter) {
+//                return null;
+//            }
+//
+//            /* Check the levels before the multi level wild card filter in both first and
+//            second filters have single level intersection
+//            */
+//            //extract the substring before multi level wild card.
+//            firstFilter = firstFilter.substring(0, wildCardIndexInFirstFilter - 1);
+//
+//            //Extract the part of expression which is intersection because of multi level wild card.
+//            int nthIndex = (numberOfLevelsInFirstFilter == 0)
+//                    ? 0 : getIndexOfNthLevel(secondFilter, numberOfLevelsInFirstFilter);
+//            String multiLevelIntersection = secondFilter.substring(nthIndex);
+//
+//            // Extract the substring of the second filter having the same number of levels
+//            // in updated firstFilter
+//            secondFilter = secondFilter.substring(0, nthIndex);
+//
+//            String singleLevelIntersection =
+//                    singleLevelInterSection(firstFilter, secondFilter);
+//
+//            return (singleLevelIntersection == null)
+//                    ? null : (singleLevelIntersection + multiLevelIntersection);
+//        }
+//
+//        return singleLevelInterSection(thisFilter, otherFilter);
+//    }
 
-        if (thisFilter.equals(otherFilter)) {
-            return thisFilter;
-        }
+//    private static String singleLevelInterSection(final String thisFilter,
+//                                                  final String otherFilter) {
+//        if (countLevels(thisFilter) != countLevels(otherFilter)) {
+//            return null;
+//        } else {
+//            return singleLevelInterSectionWhenEqualLevels(thisFilter,
+//                    otherFilter);
+//        }
+//    }
 
-        //TODO(tha1ein): consider deviation from MQTT Specification [SODP-322].
-        //Filter starting with dollar are not a subset of other filters starting with wildcards.
-        if ((thisFilter.charAt(0) == '$' && otherFilter.charAt(0) != '$')
-                || (thisFilter.charAt(0) != '$' && otherFilter.charAt(0) == '$')) {
-            return null;
-        }
+//    private static String singleLevelInterSectionWhenEqualLevels(final String thisFilter,
+//                                                                 final String otherFilter) {
+//        if (thisFilter.equals(otherFilter)) {
+//            return thisFilter;
+//        }
+//
+//        //find index of single level wild card in each filter.
+//        int wildCardIndexInThis = thisFilter.indexOf(SINGLE_LEVEL_WILD_CARD);
+//        int wildCardIndexInOther = otherFilter.indexOf(SINGLE_LEVEL_WILD_CARD);
+//
+//        // If there is no wild card in both filters, no possibility of intersection at all.
+//        if (wildCardIndexInThis == -1 && wildCardIndexInOther == -1) {
+//            return null;
+//        }
+//
+//        //Number of levels before and till the wildcard
+//        int numberOfLevelsBeforeWildcardInThis = (wildCardIndexInThis >= 0)
+//                ? countLevels(thisFilter.substring(0, wildCardIndexInThis)) : 0;
+//        int numberOfLevelsBeforeWildcardInOther = (wildCardIndexInOther >= 0)
+//                ? countLevels(otherFilter.substring(0, wildCardIndexInOther)) : 0;
+//
+//        /* Among the two, find the filter which has single level wild card earlier
+//        in order of appearance*/
+//        //Assuming thisFilter has earlier, mark and proceed. If otherFilter is earlier,
+//        // correctly assign later.
+//        String firstFilter = thisFilter;
+//        String secondFilter = otherFilter;
+//        int wildCardIndexInFirst = wildCardIndexInThis;
+//        int numberOfLevelsBeforeWildcardInFirst = numberOfLevelsBeforeWildcardInThis;
+//
+//        //true if otherFilter has a single level wild card and thisFilter doesn't have one
+//        //or true if both Expressions have single level wild card, and appears earlier in
+//        //otherFilter.
+//        boolean isOtherFilterEarlier = (wildCardIndexInOther > -1)
+//                && ((wildCardIndexInThis == -1)
+//                || (numberOfLevelsBeforeWildcardInOther < numberOfLevelsBeforeWildcardInThis));
+//        if (isOtherFilterEarlier) {
+//            firstFilter = otherFilter;
+//            secondFilter = thisFilter;
+//            wildCardIndexInFirst = wildCardIndexInOther;
+//            numberOfLevelsBeforeWildcardInFirst = numberOfLevelsBeforeWildcardInOther;
+//        }
+//
+//        //Index of the level in second filter corresponding to the wild card level in first filter.
+//        int nthIndex = (numberOfLevelsBeforeWildcardInFirst == 0)
+//                ? 0 : getIndexOfNthLevel(secondFilter, numberOfLevelsBeforeWildcardInFirst);
+//
+//        //check if portion before spotted wild card is same in both filters.
+//        boolean isPortionBeforeWildCardSame =
+//                (wildCardIndexInFirst == 0)
+//                        || subStringOrEmptyString(firstFilter, 0, wildCardIndexInFirst - 1)
+//                        .equals(subStringOrEmptyString(secondFilter, 0, nthIndex));
+//
+//        if (!isPortionBeforeWildCardSame) {
+//            return null;
+//        }
+//
+//        //extract substring with levels after wild card form both filters.
+//        String levelsAfterWildCardInFirstFilter
+//                = subStringOrEmptyString(firstFilter, wildCardIndexInFirst + 1);
+//        int indexOfNextLevelInSecondFilter
+//                = secondFilter.indexOf(LEVEL_SEPARATOR, wildCardIndexInFirst);
+//        String levelsAfterWildCardInSecondFilter
+//                = subStringOrEmptyString(secondFilter, indexOfNextLevelInSecondFilter);
+//
+//        //do recursive intersection on the substrings
+//        String afterWildCardIntersection = singleLevelInterSectionWhenEqualLevels(
+//                levelsAfterWildCardInFirstFilter,
+//                levelsAfterWildCardInSecondFilter);
+//
+//        if (afterWildCardIntersection == null) {
+//            return null;
+//        }
+//        //extract the substring in second filter till the wild card (including level of wild card)
+//        String tillWildCardIntersection = (indexOfNextLevelInSecondFilter >= 0)
+//                ? secondFilter.substring(0, indexOfNextLevelInSecondFilter) : secondFilter;
+//        return tillWildCardIntersection + afterWildCardIntersection;
+//
+//    }
 
-        //if multi level wildcard in one filter is at index zero, the second
-        // filter is always the subset.
-        if (thisFilter.charAt(0) == MULTI_LEVEL_WILD_CARD) {
-            return otherFilter;
-        }
-        if (otherFilter.charAt(0) == MULTI_LEVEL_WILD_CARD) {
-            return thisFilter;
-        }
-
-        //find index of multi level wild card in each expression
-        int multiLevelWildCardIndexInThis = thisFilter.indexOf(MULTI_LEVEL_WILD_CARD);
-        int multiLevelWildCardIndexInOther = otherFilter.indexOf(MULTI_LEVEL_WILD_CARD);
-
-        //if there are no multi level wild cards, skip to single level wild card intersection.
-        if (multiLevelWildCardIndexInThis != -1 || multiLevelWildCardIndexInOther != -1) {
-
-            // Count number of levels in each filter
-            int numberOfLevelsInThisFilter = countLevels(thisFilter);
-            int numberOfLevelsInOtherFilter = countLevels(otherFilter);
-
-            /* Among the two, find the expression which has multi level wild card earlier
-            in order of appearance*/
-            //Assuming thisFilter has wildcard earlier, mark and proceed.
-            // If otherFilter is earlier, correctly assign later.
-            String firstFilter = thisFilter;
-            String secondFilter = otherFilter;
-            int wildCardIndexInFirstFilter = multiLevelWildCardIndexInThis;
-            int numberOfLevelsInFirstFilter = numberOfLevelsInThisFilter;
-            int numberOfLevelsInSecondFilter = numberOfLevelsInOtherFilter;
-
-            //true if otherFilter has a multi level wild card and thisFilter doesn't have one
-            //or true if both filters have multi level wild card, and appears earlier in
-            //otherFilter.
-            boolean isOtherFilterEarlier = (multiLevelWildCardIndexInOther > -1)
-                    && ((multiLevelWildCardIndexInThis == -1)
-                    || (numberOfLevelsInOtherFilter < numberOfLevelsInThisFilter));
-            //if otherFilter is earlier, correctly assign it here.
-            if (isOtherFilterEarlier) {
-                firstFilter = otherFilter;
-                secondFilter = thisFilter;
-                wildCardIndexInFirstFilter = multiLevelWildCardIndexInOther;
-                numberOfLevelsInFirstFilter = numberOfLevelsInOtherFilter;
-                numberOfLevelsInSecondFilter = numberOfLevelsInThisFilter;
-            }
-
-            // Return null if the number of levels in the second filter is less than the
-            // number of levels in the first filter.
-            // example case: a/b/c/# and a/b/
-            if (numberOfLevelsInSecondFilter < numberOfLevelsInFirstFilter) {
-                return null;
-            }
-
-            /* Check the levels before the multi level wild card filter in both first and
-            second filters have single level intersection
-            */
-            //extract the substring before multi level wild card.
-            firstFilter = firstFilter.substring(0, wildCardIndexInFirstFilter - 1);
-
-            //Extract the part of expression which is intersection because of multi level wild card.
-            int nthIndex = (numberOfLevelsInFirstFilter == 0)
-                    ? 0 : getIndexOfNthLevel(secondFilter, numberOfLevelsInFirstFilter);
-            String multiLevelIntersection = secondFilter.substring(nthIndex);
-
-            // Extract the substring of the second filter having the same number of levels
-            // in updated firstFilter
-            secondFilter = secondFilter.substring(0, nthIndex);
-
-            String singleLevelIntersection =
-                    singleLevelInterSection(firstFilter, secondFilter);
-
-            return (singleLevelIntersection == null)
-                    ? null : (singleLevelIntersection + multiLevelIntersection);
-        }
-
-        return singleLevelInterSection(thisFilter, otherFilter);
-    }
-
-    private static String singleLevelInterSection(final String thisFilter,
-                                                  final String otherFilter) {
-        if (countLevels(thisFilter) != countLevels(otherFilter)) {
-            return null;
-        } else {
-            return singleLevelInterSectionWhenEqualLevels(thisFilter,
-                    otherFilter);
-        }
-    }
-
-    private static String singleLevelInterSectionWhenEqualLevels(final String thisFilter,
-                                                                 final String otherFilter) {
-        if (thisFilter.equals(otherFilter)) {
-            return thisFilter;
-        }
-
-        //find index of single level wild card in each filter.
-        int wildCardIndexInThis = thisFilter.indexOf(SINGLE_LEVEL_WILD_CARD);
-        int wildCardIndexInOther = otherFilter.indexOf(SINGLE_LEVEL_WILD_CARD);
-
-        // If there is no wild card in both filters, no possibility of intersection at all.
-        if (wildCardIndexInThis == -1 && wildCardIndexInOther == -1) {
-            return null;
-        }
-
-        //Number of levels before and till the wildcard
-        int numberOfLevelsBeforeWildcardInThis = (wildCardIndexInThis >= 0)
-                ? countLevels(thisFilter.substring(0, wildCardIndexInThis)) : 0;
-        int numberOfLevelsBeforeWildcardInOther = (wildCardIndexInOther >= 0)
-                ? countLevels(otherFilter.substring(0, wildCardIndexInOther)) : 0;
-
-        /* Among the two, find the filter which has single level wild card earlier
-        in order of appearance*/
-        //Assuming thisFilter has earlier, mark and proceed. If otherFilter is earlier,
-        // correctly assign later.
-        String firstFilter = thisFilter;
-        String secondFilter = otherFilter;
-        int wildCardIndexInFirst = wildCardIndexInThis;
-        int numberOfLevelsBeforeWildcardInFirst = numberOfLevelsBeforeWildcardInThis;
-
-        //true if otherFilter has a single level wild card and thisFilter doesn't have one
-        //or true if both Expressions have single level wild card, and appears earlier in
-        //otherFilter.
-        boolean isOtherFilterEarlier = (wildCardIndexInOther > -1)
-                && ((wildCardIndexInThis == -1)
-                || (numberOfLevelsBeforeWildcardInOther < numberOfLevelsBeforeWildcardInThis));
-        if (isOtherFilterEarlier) {
-            firstFilter = otherFilter;
-            secondFilter = thisFilter;
-            wildCardIndexInFirst = wildCardIndexInOther;
-            numberOfLevelsBeforeWildcardInFirst = numberOfLevelsBeforeWildcardInOther;
-        }
-
-        //Index of the level in second filter corresponding to the wild card level in first filter.
-        int nthIndex = (numberOfLevelsBeforeWildcardInFirst == 0)
-                ? 0 : getIndexOfNthLevel(secondFilter, numberOfLevelsBeforeWildcardInFirst);
-
-        //check if portion before spotted wild card is same in both filters.
-        boolean isPortionBeforeWildCardSame =
-                (wildCardIndexInFirst == 0)
-                        || subStringOrEmptyString(firstFilter, 0, wildCardIndexInFirst - 1)
-                        .equals(subStringOrEmptyString(secondFilter, 0, nthIndex));
-
-        if (!isPortionBeforeWildCardSame) {
-            return null;
-        }
-
-        //extract substring with levels after wild card form both filters.
-        String levelsAfterWildCardInFirstFilter
-                = subStringOrEmptyString(firstFilter, wildCardIndexInFirst + 1);
-        int indexOfNextLevelInSecondFilter
-                = secondFilter.indexOf(LEVEL_SEPARATOR, wildCardIndexInFirst);
-        String levelsAfterWildCardInSecondFilter
-                = subStringOrEmptyString(secondFilter, indexOfNextLevelInSecondFilter);
-
-        //do recursive intersection on the substrings
-        String afterWildCardIntersection = singleLevelInterSectionWhenEqualLevels(
-                levelsAfterWildCardInFirstFilter,
-                levelsAfterWildCardInSecondFilter);
-
-        if (afterWildCardIntersection == null) {
-            return null;
-        }
-        //extract the substring in second filter till the wild card (including level of wild card)
-        String tillWildCardIntersection = (indexOfNextLevelInSecondFilter >= 0)
-                ? secondFilter.substring(0, indexOfNextLevelInSecondFilter) : secondFilter;
-        return tillWildCardIntersection + afterWildCardIntersection;
-
-    }
-
-    private static String subStringOrEmptyString(String string, int index) {
-        return (index < string.length() && index >= 0)
-                ? string.substring(index) : "";
-    }
-
-    private static String subStringOrEmptyString(String string, int beginIndex, int endIndex) {
-        return (endIndex <= string.length() && beginIndex >= 0)
-                ? string.substring(beginIndex, endIndex) : "";
-    }
+//    private static String subStringOrEmptyString(String string, int index) {
+//        return (index < string.length() && index >= 0)
+//                ? string.substring(index) : "";
+//    }
+//
+//    private static String subStringOrEmptyString(String string, int beginIndex, int endIndex) {
+//        return (endIndex <= string.length() && beginIndex >= 0)
+//                ? string.substring(beginIndex, endIndex) : "";
+//    }
 
     /**
      * Check if the topic name is in accordance with the syntax rules described in
