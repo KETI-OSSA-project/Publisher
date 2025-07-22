@@ -406,19 +406,19 @@ public class MessagingManager implements AutoCloseable {
      * @throws RuntimeException on connection error (e.g. service does not exist)
      */
     @MainThread
-    @NonNull
-    public static MessagingManager getConnectedInstance(
-            @NonNull Context context, @NonNull MessagingServiceConnectionListener listener) {
-        Objects.requireNonNull(context);
-        Objects.requireNonNull(listener);
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            Log.w(TAG, "getConnectedInstance is not called on the main thread!" +
-                    " This may lead to inconsistent behavior.");
-        }
-        MessagingManager manager = new MessagingManager(context);
-        manager.setMessagingServiceConnectionListener(listener, null);
-        return manager;
-    }
+//    @NonNull
+//    public static MessagingManager getConnectedInstance(
+//            @NonNull Context context, @NonNull MessagingServiceConnectionListener listener) {
+//        Objects.requireNonNull(context);
+//        Objects.requireNonNull(listener);
+//        if (Looper.myLooper() != Looper.getMainLooper()) {
+//            Log.w(TAG, "getConnectedInstance is not called on the main thread!" +
+//                    " This may lead to inconsistent behavior.");
+//        }
+//        MessagingManager manager = new MessagingManager(context);
+//        manager.setMessagingServiceConnectionListener(listener, null);
+//        return manager;
+//    }
 
     /**
      * Creates an instance.
@@ -473,45 +473,45 @@ public class MessagingManager implements AutoCloseable {
      *
      * @param listener AIDL callback interface for connection state changes
      */
-    public void setMessagingServiceConnectionListener(
-            @Nullable IMessagingServiceConnectionListener listener) {
-        if (listener == null) {
-            // 기존 연결 리스너 제거
-            serviceHelper.setExternalConnectionListener(null, null);
-            return;
-        }
-
-        // AIDL 콜백을 BoundServiceHelper의 ConnectionListener로 변환
-        BoundServiceHelper.ConnectionListener connectionListener =
-            new BoundServiceHelper.ConnectionListener() {
-                @Override
-                public void onConnected() {
-                    try {
-                        listener.onConnected();
-                    } catch (android.os.RemoteException e) {
-                        Log.e(TAG, "Error calling onConnected callback", e);
-                    }
-                }
-
-                @Override
-                public void onDisconnected() {
-                    try {
-                        listener.onDisconnected();
-                    } catch (android.os.RemoteException e) {
-                        Log.e(TAG, "Error calling onDisconnected callback", e);
-                    }
-                }
-            };
-
-        serviceHelper.setExternalConnectionListener(connectionListener, null);
-    }
+//    public void setMessagingServiceConnectionListener(
+//            @Nullable IMessagingServiceConnectionListener listener) {
+//        if (listener == null) {
+//            // 기존 연결 리스너 제거
+//            serviceHelper.setExternalConnectionListener(null, null);
+//            return;
+//        }
+//
+//        // AIDL 콜백을 BoundServiceHelper의 ConnectionListener로 변환
+//        BoundServiceHelper.ConnectionListener connectionListener =
+//            new BoundServiceHelper.ConnectionListener() {
+//                @Override
+//                public void onConnected() {
+//                    try {
+//                        listener.onConnected();
+//                    } catch (android.os.RemoteException e) {
+//                        Log.e(TAG, "Error calling onConnected callback", e);
+//                    }
+//                }
+//
+//                @Override
+//                public void onDisconnected() {
+//                    try {
+//                        listener.onDisconnected();
+//                    } catch (android.os.RemoteException e) {
+//                        Log.e(TAG, "Error calling onDisconnected callback", e);
+//                    }
+//                }
+//            };
+//
+//        serviceHelper.setExternalConnectionListener(connectionListener, null);
+//    }
 
     /**
      * Same as {@link #close()}.
      */
-    public void disconnect() {
-        close();
-    }
+//    public void disconnect() {
+//        close();
+//    }
 
     /**
      * Unbind from the service and cleanup all resources.

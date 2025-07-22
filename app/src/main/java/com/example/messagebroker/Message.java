@@ -84,6 +84,7 @@ public class Message implements Parcelable {
         }
     }
 
+    //  Message 클래스의 생성자 중 하나로, 안드로이드의 Parcel 객체에서 데이터를 읽어와 Message 객체를 복원하는 역할
     private Message(Parcel in) {
         messageId = (UUID) in.readSerializable();
         bundle = in.readBundle(getClass().getClassLoader());
@@ -94,6 +95,7 @@ public class Message implements Parcelable {
         timeStamp = null;
     }
 
+    //   Message 객체를 Parcel 형태로 변환해 IPC(프로세스 간 통신)나 인텐트로 전달할 수 있게 하는 메서드
    @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeSerializable(messageId);
