@@ -6,13 +6,19 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import androidx.annotation.Nullable;
+import com.hivemq.client.mqtt.MqttClient;
+import com.hivemq.client.mqtt.MqttClientState;
+import com.hivemq.client.mqtt.mqtt3.Mqtt3AsyncClient;
+import com.hivemq.client.mqtt.datatypes.MqttQos;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+
 /**
  * MessagingService provides MQTT message broker functionality for Android applications.
+ * 얘가 지금 브로커 역할도 하고 있었음.. 이러면 안됌
  *
  * This service implements the IMessagingService AIDL interface and manages:
  * - Message publishing to subscribed clients
@@ -22,6 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class MessagingService extends Service {
 
     private static final String TAG = "MessagingService";
+    private Mqtt3AsyncClient mqttClient;
 
     // 클라이언트 구독 정보를 관리하는 맵 (clientHash -> ClientInfo)
     private final Map<Integer, ClientInfo> subscribedClients = new ConcurrentHashMap<>();
@@ -50,6 +57,7 @@ public class MessagingService extends Service {
      */
     private final IMessagingService.Stub binder = new IMessagingService.Stub() {
 
+        // 이 publish로 발행되고 있지 않음
         @Override
         public void publish(Message message) throws RemoteException {
             if (message == null) {
@@ -59,6 +67,24 @@ public class MessagingService extends Service {
 
             Log.d(TAG, "Publishing message: topic=" + message.getTopic() +
                       ", payload size=" + (message.getPayload() != null ? message.getPayload().length : 0));
+
+            // MQTT 브로커로 발행
+            if (mqttClient != null && mqttClient.getState() == MqttClientState.CONNECTED) {
+                mqttClient.publishWith()
+                        .topic(message.getTopic())
+                        .payload(message.getPayload())
+                        .qos(MqttQos.AT_LEAST_ONCE)
+                        .send()
+                        .whenComplete((result, throwable) -> {
+                            if (throwable == null) {
+                                Log.i(TAG, "✅ MQTT 메시지 발행 성공: " + message.getTopic());
+                            } else {
+                                Log.e(TAG, "❌ MQTT 메시지 발행 실패: " + throwable.getMessage());
+                            }
+                        });
+            } else {
+                Log.w(TAG, "MQTT 클라이언트가 연결되지 않았습니다.");
+            }
 
             // 메시지 히스토리에 추가
             addToMessageHistory(message);
@@ -125,12 +151,67 @@ public class MessagingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.i(TAG, "MessagingService created");
+        Log.i(TAG, "🚀 MessagingService onCreate() 진입"); // 서비스 실행 확인용
+
+        // MQTT 클라이언트 초기화
+        mqttClient = MqttClient.builder()
+                .useMqttVersion3()
+                .identifier("android-service-001")
+                .serverHost("192.168.0.8") // 예시 브로커 주소
+                .serverPort(1883)
+                .buildAsync();
+
+        Log.i(TAG, "MQTT 클라이언트 생성됨");
+
+        mqttClient.connectWith()
+                .send()
+                .whenComplete((connAck, throwable) -> {
+                    if (throwable == null) {
+                        Log.i(TAG, "✅ MQTT 브로커 연결 성공");
+                    } else {
+                        Log.e(TAG, "❌ MQTT 연결 실패: " + throwable.getMessage());
+                    }
+                });
+
+        Log.i(TAG, "🔗 MessagingService 바인딩 준비 완료");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "MessagingService started");
+
+        try {
+            // Foreground 서비스로 실행하여 우선순위 높이기
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                String channelId = "messaging_service_channel";
+
+                // NotificationManager 가져오기
+                android.app.NotificationManager manager = getSystemService(android.app.NotificationManager.class);
+                if (manager != null) {
+                    // 채널이 이미 존재하는지 확인
+                    if (manager.getNotificationChannel(channelId) == null) {
+                        android.app.NotificationChannel channel = new android.app.NotificationChannel(
+                            channelId, "Messaging Service", android.app.NotificationManager.IMPORTANCE_LOW);
+                        channel.setDescription("MQTT 메시징 서비스");
+                        manager.createNotificationChannel(channel);
+                        Log.d(TAG, "알림 채널 생성됨");
+                    }
+                }
+
+                android.app.Notification notification = new android.app.Notification.Builder(this, channelId)
+                    .setContentTitle("MQTT 메시징 서비스")
+                    .setContentText("MQTT 브로커와 연결 중...")
+                    .setSmallIcon(android.R.drawable.ic_dialog_info)
+                    .build();
+
+                startForeground(1, notification);
+                Log.i(TAG, "🔥 Foreground 서비스로 실행됨 - 연결 속도 향상");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Foreground 서비스 시작 중 에러", e);
+            // Foreground 서비스 실패해도 일반 서비스로는 계속 실행
+        }
+
         return START_STICKY; // 서비스가 종료되면 자동으로 재시작
     }
 

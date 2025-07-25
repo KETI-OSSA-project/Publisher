@@ -363,8 +363,7 @@ import static java.util.Objects.requireNonNull;
 public class MessagingManager implements AutoCloseable {
     private static final String TAG = MessagingManager.class.getSimpleName();
     private static final ComponentName SERVICE =
-            ComponentName.createRelative(MESSAGE_BROKER_PACKAGE,
-                    MESSAGING_SERVICE);
+            new ComponentName("com.example.publisher", "com.example.messagebroker.MessagingService");
     private final BoundServiceHelper<IMessagingService> serviceHelper;
     // Session ID is randomly generated for each MessagingManager instance to be used for the
     // message broker book-keeping logic

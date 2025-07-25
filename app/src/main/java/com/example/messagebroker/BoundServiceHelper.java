@@ -31,6 +31,7 @@ public class BoundServiceHelper<T> {
         T convert(IBinder binder);
     }
 
+    // connection: ServiceConnection 클래스를 상속받는 익명 클래스
     private final ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
