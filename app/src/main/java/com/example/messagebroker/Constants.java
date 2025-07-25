@@ -31,12 +31,12 @@ public class Constants {
      * Messaging Service package.
      */
     public static final String MESSAGE_BROKER_PACKAGE
-            = "com.example.messagebroker";
+            = "com.example.messagebroker";  // 원래대로 되돌림
     /**
      * Service to bind to in order to use the messaging service.
      */
     public static final String MESSAGING_SERVICE
-            = ".MessagingService";
+            = "com.example.messagebroker.MessagingService";  // 전체 절대 경로로 변경
     /**
      * Permission needed to manage the messaging access control.
      */
@@ -110,4 +110,3 @@ public class Constants {
     private Constants() {
     }
 }
-
