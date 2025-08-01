@@ -57,5 +57,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation ("com.hivemq:hivemq-mqtt-client:1.3.0")
+    implementation("com.hivemq:hivemq-mqtt-client:1.3.0")
 }
+
