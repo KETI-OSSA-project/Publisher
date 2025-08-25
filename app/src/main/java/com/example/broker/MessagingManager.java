@@ -98,7 +98,7 @@ public class MessagingManager implements AutoCloseable {
         Objects.requireNonNull(filter);
         IMessagingService service = serviceHelper.get();
         if (service == null) {
-            throw new RuntimeException("MessagingService가 아직 바인딩되지 않았습니다. 연결을 기다려주세요.");
+            throw new RuntimeException("Android Broker가 아직 바인딩되지 않았습니다. 연결을 기다려주세요.");
         }
         try {
             IMessageListener.Stub messageListener = getOrCreateStub(client, handler);
@@ -134,7 +134,7 @@ public class MessagingManager implements AutoCloseable {
         Objects.requireNonNull(filter);
         IMessagingService service = serviceHelper.get();
         if (service == null) {
-            throw new RuntimeException("MessagingService가 아직 바인딩되지 않았습니다. 연결을 기다려주세요.");
+            throw new RuntimeException("Android Broker가 아직 바인딩되지 않았습니다. 연결을 기다려주세요.");
         }
         try {
             IMessageListener.Stub messageListener = getOrCreateStub(client, null);
@@ -146,6 +146,7 @@ public class MessagingManager implements AutoCloseable {
 
     @SuppressWarnings("checkstyle:javadocmethod")
     @RequiresPermission(Constants.MESSAGE_SUBSCRIBE_PERMISSION)
+    // 기존 표준 api 명세와 이름 달라짐
     public boolean unsubscribeAll(@NonNull MessageListener client) {
         Objects.requireNonNull(client);
         try {
@@ -164,7 +165,7 @@ public class MessagingManager implements AutoCloseable {
         Objects.requireNonNull(message);
         IMessagingService service = serviceHelper.get();
         if (service == null) {
-            throw new RuntimeException("MessagingService가 아직 바인딩되지 않았습니다. 연결을 기다려주세요.");
+            throw new RuntimeException("Android Broker가 아직 바인딩되지 않았습니다. 연결을 기다려주세요.");
         }
         try {
             service.publish(message);

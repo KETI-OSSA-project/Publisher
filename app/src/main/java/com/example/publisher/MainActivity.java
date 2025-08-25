@@ -50,7 +50,6 @@ public class MainActivity extends ComponentActivity {
     }
 
     private void initializeMessagingManager() {
-        logStatus("🔧 MessagingManager 초기화 중...");
         try {
             messagingManager = MessagingManager.getMessagingManager(this);
             MessagingManager.MessagingServiceConnectionListener connectionListener =
@@ -67,7 +66,6 @@ public class MainActivity extends ComponentActivity {
                     }
                 };
             messagingManager.setMessagingServiceConnectionListener(connectionListener, null);
-            logStatus("📡 브로커 연결 리스너 등록 완료");
         } catch (Exception e) {
             logStatus("❌ MessagingManager 초기화 실패: " + e.getMessage());
         }
@@ -89,13 +87,12 @@ public class MainActivity extends ComponentActivity {
     }
 
     private void logStatus(String msg) {
-        Log.d("MQTT", msg);
+        Log.d("Android", msg);
         statusView.append(msg + "\n");
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // 더 이상 정리할 외부 리소스 없음
     }
 }
