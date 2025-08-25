@@ -11,7 +11,7 @@ Publisher 모듈은 내부 Broker(메시징 허브) 및 Gateway를 통해 **MQTT
 
 ---
 
-## 📂 디렉토리 구조
+## 디렉토리 구조
 
 ```
 publisher_java/
@@ -28,7 +28,7 @@ publisher_java/
 
 ---
 
-## ⚙️ 주요 기능
+## 주요 기능
 
 * **토픽 기반 메시지 발행**: 내부 Broker로 메시지 전송
 * **Gateway 연동(Uplink)**: 규칙에 부합하는 토픽은 외부 MQTT로 라우팅
@@ -38,7 +38,7 @@ publisher_java/
 
 ---
 
-## 🖥실행 환경
+## 실행 환경
 
 * **Android Studio Koala (2024.1.1 Patch 1)**
 * **Android 12 이하 (SDK/API Level ≤ 32)**
