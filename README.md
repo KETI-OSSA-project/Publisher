@@ -5,6 +5,7 @@
 ## Azena Messaging Publisher
 
 **개요**
+
 Publisher 모듈은 내부 Broker(메시징 허브) 및 Gateway를 통해 **MQTT 메시지를 발행(Publish)** 하는 역할을 담당합니다.
 토픽(Topic)과 메시지(Payload)를 지정해 내부 생태계로 전송하거나, Gateway 설정(Uplink 규칙)에 따라 **외부 MQTT Broker(Mosquitto)** 로 라우팅할 수 있습니다.
 
