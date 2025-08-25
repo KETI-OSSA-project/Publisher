@@ -91,5 +91,3 @@ publisher_java/
 * **인코딩 문제**: Payload 직렬화 방식(String/JSON/bytes) 일관성 체크
 
 ---
-
-필요하시면 **Subscriber**/ **Broker**도 같은 포맷으로 바로 이어서 드릴게요!
