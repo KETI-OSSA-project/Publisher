@@ -3,32 +3,18 @@ package com.example.broker;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.RemoteException;
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresPermission;
 import android.util.Log;
 import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import com.example.broker.IMessagingService;
-import static com.example.broker.MessagingManager.Constants.MESSAGE_BROKER_PACKAGE;
-import static com.example.broker.MessagingManager.Constants.MESSAGING_SERVICE;
-import static java.util.Objects.requireNonNull;
 
 public class MessagingManager implements AutoCloseable {
-    private static final String TAG = MessagingManager.class.getSimpleName();
-    private static final ComponentName SERVICE =
-            ComponentName.createRelative(MESSAGE_BROKER_PACKAGE, MESSAGING_SERVICE);
     private final BoundServiceHelper<IMessagingService> serviceHelper;
-    private final UUID sessionId = UUID.randomUUID();
     private final String applicationId;
     private final String applicationPackageName;
 
     // MessageListener -> Stub 캐싱용 맵 추가
-    private final ConcurrentHashMap<MessageListener, IMessageListener.Stub> stubMap = new ConcurrentHashMap<>();
 
     private MessagingManager(@NonNull Context context) {
         Objects.requireNonNull(context);
@@ -66,60 +52,6 @@ public class MessagingManager implements AutoCloseable {
         serviceHelper.close();
     }
 
-    @SuppressWarnings("checkstyle:javadocmethod")
-    @RequiresPermission(Constants.MESSAGE_SUBSCRIBE_PERMISSION)
-    public boolean subscribe(@NonNull MessageListener client, @NonNull Filter filter) {
-        return subscribe(client, filter, null);
-    }
-
-    @RequiresPermission(Constants.MESSAGE_SUBSCRIBE_PERMISSION)
-    public boolean subscribe(@NonNull MessageListener client, @NonNull Filter filter, @Nullable Handler handler) {
-        Objects.requireNonNull(client);
-        Objects.requireNonNull(filter);
-        IMessagingService service = serviceHelper.get();
-        if (service == null) {
-            throw new RuntimeException("Android Broker가 아직 바인딩되지 않았습니다. 연결을 기다려주세요.");
-        }
-        try {
-            IMessageListener.Stub messageListener = getOrCreateStub(client, handler);
-            return service.subscribe(messageListener, filter);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private IMessageListener.Stub getOrCreateStub(MessageListener messageListener, Handler handler) {
-        IMessageListener.Stub stub = stubMap.get(messageListener);
-        if (stub == null) {
-            stub = createMessageListenerProxy(messageListener, handler);
-            stubMap.put(messageListener, stub);
-        }
-        return stub;
-    }
-
-    private IMessageListener.Stub createMessageListenerProxy(MessageListener messageListener, Handler handler) {
-        return new IMessageListener.Stub() {
-            @Override
-            public void onMessage(com.example.broker.Message message) throws RemoteException {
-                if (handler != null) handler.post(() -> messageListener.onMessage(message));
-                else messageListener.onMessage(message);
-            }
-        };
-    }
-
-    @SuppressWarnings("checkstyle:javadocmethod")
-    @RequiresPermission(Constants.MESSAGE_SUBSCRIBE_PERMISSION)
-    // 기존 표준 api 명세와 이름 달라짐
-    public boolean unsubscribeAll(@NonNull MessageListener client) {
-        Objects.requireNonNull(client);
-        try {
-            IMessageListener.Stub messageListener = getOrCreateStub(client, null);
-            return serviceHelper.get().unsubscribeAll(messageListener);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public boolean publish(@NonNull com.example.broker.Message message) {
         Objects.requireNonNull(message);
         IMessagingService service = serviceHelper.get();
@@ -138,16 +70,11 @@ public class MessagingManager implements AutoCloseable {
         void onDisconnected();
     }
 
-    public interface MessageListener {
-        void onMessage(com.example.broker.Message message);
-    }
-
     // 바인딩 주소 정리한 곳
     public static class Constants {
         public static final String MESSAGE_BROKER_PACKAGE = "com.example.broker";
         public static final String MESSAGING_SERVICE = "com.example.broker.MessagingService";
         public static final String MESSAGING_SERVICE_ACTION = "com.example.broker.MessagingService";
-        public static final String MESSAGE_SUBSCRIBE_PERMISSION = "com.example.permission.MESSAGE_SUBSCRIBE";
     }
 
     // BoundServiceHelper 통합
@@ -161,7 +88,6 @@ public class MessagingManager implements AutoCloseable {
             T convert(android.os.IBinder binder);
         }
         private final Context context;
-        private final ComponentName serviceComponent;
         private final BinderConverter<T> binderConverter;
         private final java.util.concurrent.atomic.AtomicReference<T> serviceRef = new java.util.concurrent.atomic.AtomicReference<>();
         private boolean bound = false;
@@ -182,47 +108,26 @@ public class MessagingManager implements AutoCloseable {
                 notifyExternalDisconnected();
             }
         };
-        private BoundServiceHelper(@NonNull Context context, @Nullable ComponentName serviceComponent, @Nullable String action, @NonNull BinderConverter<T> binderConverter) {
+        private BoundServiceHelper(@NonNull Context context, @Nullable String action, @NonNull BinderConverter<T> binderConverter) {
             this.context = context.getApplicationContext();
-            this.serviceComponent = serviceComponent;
             this.binderConverter = binderConverter;
-            if (action != null) {
-                bindServiceWithAction(action);
-            } else {
-                bindService();
-            }
+            bindService();
         }
         public static <T> BoundServiceHelper<T> newInstanceWithAction(@NonNull Context context, @NonNull String action, @NonNull BinderConverter<T> binderConverter) {
-            return new BoundServiceHelper<>(context, null, action, binderConverter);
+            return new BoundServiceHelper<>(context, action, binderConverter);
         }
-        public static <T> BoundServiceHelper<T> newInstance(@NonNull Context context, @NonNull ComponentName serviceComponent, @NonNull BinderConverter<T> binderConverter) {
-            return new BoundServiceHelper<>(context, serviceComponent, null, binderConverter);
-        }
+
         public void bindService() {
             try {
                 android.content.Intent intent = new android.content.Intent();
-                intent.setComponent(serviceComponent);
+                intent.setComponent(new ComponentName(Constants.MESSAGE_BROKER_PACKAGE, Constants.MESSAGING_SERVICE));
                 boolean success = context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
                 if (!success) {
-                    Log.w(TAG, "Failed to bind to service: " + serviceComponent);
+                    Log.w(TAG, "바인딩 실패");
                     notifyExternalDisconnected();
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Exception while binding to service", e);
-                notifyExternalDisconnected();
-            }
-        }
-        public void bindServiceWithAction(String action) {
-            try {
-                android.content.Intent intent = new android.content.Intent();
-                intent.setComponent(new ComponentName("com.example.broker", "com.example.broker.MessagingService"));
-                boolean success = context.bindService(intent, connection, Context.BIND_AUTO_CREATE);
-                if (!success) {
-                    Log.w(TAG, "Failed to bind to service with action: " + action);
-                    notifyExternalDisconnected();
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Exception while binding to service with action", e);
+                Log.e(TAG, "바인딩 시도 중 예외", e);
                 notifyExternalDisconnected();
             }
         }
