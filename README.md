@@ -1,4 +1,4 @@
-# Publisher_java
+# Publisher
 
 ---
 
