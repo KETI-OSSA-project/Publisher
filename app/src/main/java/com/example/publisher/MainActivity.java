@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,6 +23,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MainActivity extends ComponentActivity {
     private EditText inputTopic;
@@ -33,7 +39,8 @@ public class MainActivity extends ComponentActivity {
     private static final String TAG = "Publisher";
 
     // 시험 신호(adb 셸만 보낼 수 있음): am broadcast -a test.PUBLISH --es topic sensor/1/temp [--es payload ...]
-    // payload를 빼면 토픽 이름을 내용으로 보낸다(절차서 18번). --es file scene.xml 이면 앱에 든 샘플 파일 바이트 그대로(20·32번)
+    // payload를 빼면 토픽 이름을 내용으로 보낸다(절차서 18번). --es file scene.xml 이면 앱에 든 샘플 파일 바이트 그대로(20·32번).
+    // --ei repeat N 을 더하면 샘플의 UtcTime을 그때 시각으로 바꿔 1초마다 N번 보낸다(23번)
     private static final String ACTION_PUBLISH = "test.PUBLISH";
 
     private final BroadcastReceiver testReceiver = new BroadcastReceiver() {
@@ -51,7 +58,9 @@ public class MainActivity extends ComponentActivity {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 byte[] buf = new byte[4096];
                 for (int n; (n = in.read(buf)) > 0; ) out.write(buf, 0, n);
-                publishMessage(topic, out.toByteArray());
+                int repeat = intent.getIntExtra("repeat", 0);
+                if (repeat > 0) publishEverySecond(topic, out.toString("UTF-8"), repeat);
+                else publishMessage(topic, out.toByteArray());
             } catch (IOException e) {
                 logStatus("❌ 샘플 파일 읽기 실패: " + file);
             }
@@ -117,6 +126,19 @@ public class MainActivity extends ComponentActivity {
             messagingManager.setMessagingServiceConnectionListener(connectionListener, null);
         } catch (Exception e) {
             logStatus("❌ MessagingManager 초기화 실패: " + e.getMessage());
+        }
+    }
+
+    // OSSA 부록 A.2: 장면 설명의 시각은 발행자가 넣는다. 시험 샘플이라 프레임 획득 시각 대신 발행 시각을 쓴다
+    private void publishEverySecond(String topic, String template, int count) {
+        Handler handler = new Handler(Looper.getMainLooper());
+        for (int i = 0; i < count; i++) {
+            handler.postDelayed(() -> {
+                SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                iso.setTimeZone(TimeZone.getTimeZone("UTC"));
+                String xml = template.replaceFirst("UtcTime=\"[^\"]*\"", "UtcTime=\"" + iso.format(new Date()) + "\"");
+                publishMessage(topic, xml.getBytes(StandardCharsets.UTF_8));
+            }, i * 1000L);
         }
     }
 
