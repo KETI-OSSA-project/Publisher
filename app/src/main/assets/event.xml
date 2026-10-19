@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Message UtcTime="2026-10-19T03:00:00.000Z" PropertyOperation="Changed">
+  <Source>
+    <SimpleItem Name="Source" Value="VideoSource_1"/>
+  </Source>
+  <Data>
+    <SimpleItem Name="State" Value="true"/>
+  </Data>
+</Message>
