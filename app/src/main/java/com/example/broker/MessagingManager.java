@@ -11,10 +11,6 @@ import java.util.Objects;
 
 public class MessagingManager implements AutoCloseable {
     private final BoundServiceHelper<IMessagingService> serviceHelper;
-    private final String applicationId;
-    private final String applicationPackageName;
-
-    // MessageListener -> Stub 캐싱용 맵 추가
 
     private MessagingManager(@NonNull Context context) {
         Objects.requireNonNull(context);
@@ -22,8 +18,6 @@ public class MessagingManager implements AutoCloseable {
         serviceHelper = BoundServiceHelper.newInstanceWithAction(context,
                 Constants.MESSAGING_SERVICE_ACTION,
                 IMessagingService.Stub::asInterface);
-        applicationId = context.getPackageName();
-        applicationPackageName = applicationId.replace('.', '/');
     }
     @NonNull
     public static MessagingManager getMessagingManager(Context context) {
